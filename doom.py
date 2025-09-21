@@ -1,7 +1,7 @@
 try:
     from pypresence import Presence, DiscordNotFound
 except:
-    print("няма библиатеки для дискорда")
+    pass
 import psutil
 import pygame
 import random
@@ -69,7 +69,6 @@ def try_found_ds():
         global ds_found
         if is_process_with_keyword_running('Discord'):
             ds_found == 0
-            print('дс закрыт')
         if ds_found == 0:
             # Замените на ваш Client ID из Developer Portal
             CLIENT_ID = "1414290161969135809"
@@ -77,7 +76,7 @@ def try_found_ds():
             RPC = Presence(CLIENT_ID)
             RPC.connect()
             # Установка базового статуса
-            print("абоба")
+            pass
             RPC.update(
             state="Играет в DemonWave",
             large_image="a_simple_and_moder_image",
@@ -86,8 +85,9 @@ def try_found_ds():
             )
             ds_found += 1
     except:
-        print("ошибка")
+        pass
 # Игровые переменные
+debug  = False
 CLIENT_ID = "1414290161969135809"
 RPC = Presence(CLIENT_ID)
 clock = pygame.time.Clock()
@@ -216,7 +216,7 @@ class Player:
             try:
                 try_found_ds()
             except:
-                print("ошибка")
+                pass
             self.regen_timer = 0
             if self.health_regen > 0 and self.health < self.max_health:
                 self.health = min(self.max_health, self.health + self.health_regen)
@@ -377,9 +377,10 @@ class UpgradeScreen:
                     self.player.weapons["machinegun"]["damage"] += 0.05
                     self.player.weapons["sniper rifle"]["damage"] += 3.5
                     self.player.weapons["rocketlauncher"]["damage"] += 5
-                    for weapon_name, weapon_stats in self.player.weapons.items():
-                        damage = weapon_stats["damage"]
-                        print(f"{weapon_name}: {damage}")
+                    if debug == True:
+                        for weapon_name, weapon_stats in self.player.weapons.items():
+                            damage = weapon_stats["damage"]
+                            print(f"{weapon_name}: {damage}")
             elif upgrade_key == "heal":
                 self.player.health = min(self.player.max_health, self.player.health + upgrade["value"])
             elif upgrade_key == "regen":
@@ -391,9 +392,6 @@ monster_spawn_timer = 0
 game_state = "start"  # start, playing, upgrade, game_over
 wave_number = 1
 monsters_per_wave = 10 * wave_number
-for weapon_name, weapon_stats in player.weapons.items():
-    damage = weapon_stats["damage"]
-    print(f"{weapon_name}: {damage}")
 # Основной игровой цикл
 running = True
 while running:
@@ -403,9 +401,8 @@ while running:
             running = False
         
         # Обработка всех событий клавиатуры здесь
-        if event.type == pygame.KEYDOWN:
+        if event.type == pygame.KEYDOWN: 
             if game_state == "game_over" and event.key == pygame.K_r:
-                print("Переход в магазин")
                 game_state = "upgrade"
                 upgrade_screen = UpgradeScreen(player)
         
