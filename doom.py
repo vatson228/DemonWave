@@ -10,6 +10,7 @@ import sys
 import time
 import json
 import os
+from threading import Thread
 pygame.mixer.pre_init(frequency=44100, size=-16, channels=10, buffer=512)
 pygame.mixer.init()
 channel = pygame.mixer.find_channel()
@@ -88,6 +89,10 @@ def try_found_ds():
         pass
 # Игровые переменные
 debug  = False
+wave_number = 1
+Monster_upgraded_speed = 0
+Monster_upgraded_max_health = 0
+Monster_upgraded_damage = 0
 CLIENT_ID = "1414290161969135809"
 RPC = Presence(CLIENT_ID)
 clock = pygame.time.Clock()
@@ -142,8 +147,8 @@ class Player:
                     self.bullets.append({
                         "x": self.x, 
                         "y": self.y, 
-                        "dx": angle_dx * 25, 
-                        "dy": angle_dy * 25,
+                        "dx": angle_dx * 30, 
+                        "dy": angle_dy * 30,
                         "damage": self.weapons[self.weapon]["damage"],
                         "color": self.weapons[self.weapon]["color"]
                     })
@@ -152,8 +157,8 @@ class Player:
                 self.bullets.append({
                     "x": self.x, 
                     "y": self.y, 
-                    "dx": dx * 25, 
-                    "dy": dy * 25,
+                    "dx": dx * 30, 
+                    "dy": dy * 30,
                     "damage": self.weapons[self.weapon]["damage"],
                     "color": self.weapons[self.weapon]["color"]
                 })
@@ -162,8 +167,8 @@ class Player:
                 self.bullets.append({
                     "x": self.x, 
                     "y": self.y, 
-                    "dx": dx * 25, 
-                    "dy": dy * 25,
+                    "dx": dx * 30, 
+                    "dy": dy * 30,
                     "damage": self.weapons[self.weapon]["damage"],
                     "color": self.weapons[self.weapon]["color"]
                 })
@@ -172,8 +177,8 @@ class Player:
                 self.bullets.append({
                     "x": self.x, 
                     "y": self.y, 
-                    "dx": dx * 25, 
-                    "dy": dy * 25,
+                    "dx": dx * 30, 
+                    "dy": dy * 30,
                     "damage": self.weapons[self.weapon]["damage"],
                     "color": self.weapons[self.weapon]["color"]
                 })
@@ -182,8 +187,8 @@ class Player:
                 self.bullets.append({
                     "x": self.x, 
                     "y": self.y, 
-                    "dx": dx * 25, 
-                    "dy": dy * 25,
+                    "dx": dx * 30, 
+                    "dy": dy * 30,
                     "damage": self.weapons[self.weapon]["damage"],
                     "color": self.weapons[self.weapon]["color"]
                 })
@@ -191,8 +196,8 @@ class Player:
                 self.bullets.append({
                     "x": self.x, 
                     "y": self.y, 
-                    "dx": dx * 25, 
-                    "dy": dy * 25,
+                    "dx": dx * 30, 
+                    "dy": dy * 30,
                     "damage": self.weapons[self.weapon]["damage"],
                     "color": self.weapons[self.weapon]["color"]
                 })
@@ -214,7 +219,8 @@ class Player:
         self.regen_timer += 1
         if self.regen_timer >= 60:  # 60 кадров = 1 секунда
             try:
-                try_found_ds()
+                th = Thread(target=try_found_ds, args=(1))
+                th.start
             except:
                 pass
             self.regen_timer = 0
@@ -250,6 +256,7 @@ class Player:
         
         time_text = font.render(f"Time: {int(self.time_alive)}s", True, WHITE)
         screen.blit(time_text, (WIDTH - 150, 50))
+
         
         # Рисование текущего оружия
         weapon_text = font.render(f"Weapon: {self.weapon}", True, self.weapons[self.weapon]["color"])
@@ -262,39 +269,39 @@ class Monster:
         self.type = monster_type
         if monster_type == "zombie":
             self.radius = 25
-            self.speed = 2.5
-            self.health = 30
-            self.damage = 5
+            self.speed = 2.5 + Monster_upgraded_speed
+            self.health = 30 + Monster_upgraded_max_health
+            self.damage = 5 + Monster_upgraded_damage
             self.color = (100, 150, 100)
         elif monster_type == "imp":
             self.radius = 20
-            self.speed = 3.5
-            self.health = 20
-            self.damage = 8
+            self.speed = 3.5 + Monster_upgraded_speed
+            self.health = 20 + Monster_upgraded_max_health
+            self.damage = 8 + Monster_upgraded_damage
             self.color = (150, 100, 100)
         elif monster_type == "cacodemon":
             self.radius = 30
-            self.speed = 1.5
-            self.health = 50
-            self.damage = 15
+            self.speed = 1.5 + Monster_upgraded_speed
+            self.health = 50 + Monster_upgraded_max_health
+            self.damage = 15 + Monster_upgraded_damage
             self.color = (200, 100, 200)
         elif monster_type == "cyberdemon":
             self.radius = 40
-            self.speed = 1.15
-            self.health = 100
-            self.damage = 25
+            self.speed = 1.15 + Monster_upgraded_speed
+            self.health = 100 + Monster_upgraded_max_health
+            self.damage = 25 + Monster_upgraded_damage
             self.color = (150, 150, 150)
         elif monster_type == "archvile":
             self.radius = 28
-            self.speed = 1.70
-            self.health = 80
-            self.damage = 20
+            self.speed = 1.70 + Monster_upgraded_speed
+            self.health = 80 + Monster_upgraded_max_health
+            self.damage = 20 + Monster_upgraded_damage
             self.color = (255, 100, 0)
         elif monster_type == "hellknight":
             self.radius = 32
-            self.speed = 2.55
-            self.health = 120
-            self.damage = 30
+            self.speed = 2.55 + Monster_upgraded_speed
+            self.health = 120 + Monster_upgraded_max_health
+            self.damage = 30 + Monster_upgraded_damage
             self.color = (150, 0, 50)        
     
     def move(self, player_x, player_y):
@@ -394,7 +401,19 @@ wave_number = 1
 monsters_per_wave = 10 * wave_number
 # Основной игровой цикл
 running = True
+upgrade_wave = 1
 while running:
+    if upgrade_wave * 5 == wave_number:
+        list_of_upgrades = [1,2,3]
+        choise = random.choice(list_of_upgrades)
+        if choise == 1:
+            Monster_upgraded_damage += 10
+        elif choise == 2:
+            Monster_upgraded_max_health += 5
+        elif choise == 3:
+            Monster_upgraded_speed += 1
+        upgrade_wave += 1
+
     # Обработка событий
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
